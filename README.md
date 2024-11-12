@@ -22,12 +22,12 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ## Build native(Android or iOS)
 
-Run `npx cap add android`(Choose according to your needs) <br>
-Run `npx cap add ios` (Choose according to your needs)<br>
+Run `npx cap add android`(Choose as needed) <br>
+Run `npx cap add ios` (Choose as needed)<br>
 Run `npm run build:native` to build the project. The build artifacts will be stored in the `www/` directory.<br>
 Run `npx cap sync` <br>
-Go to build in Android Studio (Choose according to your needs) <br>
-Go to build in Xcode (Choose according to your needs) <br>
+Go to build in Android Studio (Choose as needed) <br>
+Go to build in Xcode (Choose as needed) <br>
 
 ## Further help
 
