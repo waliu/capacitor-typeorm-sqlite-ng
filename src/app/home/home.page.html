@@ -3,6 +3,9 @@
     <ion-title>
       Blank
     </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="addUser()">add user</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -12,5 +15,14 @@
       <ion-title size="large">Blank</ion-title>
     </ion-toolbar>
   </ion-header>
-
+  <ion-list>
+    @for (user of users; track $index) {
+      <ion-item>
+        <ion-avatar aria-hidden="true" slot="start">
+          <img alt="" src="assets/icon/favicon.png"/>
+        </ion-avatar>
+        <ion-label>{{ user.user_name }}</ion-label>
+      </ion-item>
+    }
+  </ion-list>
 </ion-content>

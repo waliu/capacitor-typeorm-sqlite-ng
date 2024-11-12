@@ -25,7 +25,5 @@ export class BsPlatformDBService {
     if (!this.dataSource.isInitialized) return Promise.reject(`Error: AuthorDataSource not initialized`)
     // 获取SysUser Repository 对象
     this.sysUserRepository = this.dataSource.getRepository(SysUser);
-
-    console.log(this.sysUserRepository);
   }
 }

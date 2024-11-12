@@ -5,9 +5,9 @@
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "ng": "ng",
-    "start": "npm run copy:sql:wasm && ng serve",
+    "start": "npm run copy:sql:wasm && ng serve --port 5100",
     "build:web": "npm run copy:sql:wasm && ng build",
-    "build:native": "npm run remove:sql:wasm && ng build  --watch",
+    "build:native": "npm run remove:sql:wasm && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",

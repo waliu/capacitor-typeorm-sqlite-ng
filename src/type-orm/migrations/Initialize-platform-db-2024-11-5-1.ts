@@ -11,11 +11,9 @@ export class InitializePlatformDb20241151 implements MigrationInterface {
           password VARCHAR(256) NOT NULL
         );
       `);
-
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`DROP TABLE "sys_user";`);
   }
-
 }
