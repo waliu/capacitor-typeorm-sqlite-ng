@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'ionic.ng.sqlite.typeorm',
-  appName: 'ionic-ng-sqlite-typeorm',
+  appId: 'capacitor.typeorm.sqlite',
+  appName: 'capacitor-typeorm-sqlite-ng',
   webDir: 'www',
   plugins: {
     CapacitorSQLite: {
