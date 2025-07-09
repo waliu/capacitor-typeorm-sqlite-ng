@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">capacitor-typeorm-sqlite-ng</string>
+    <string name="title_activity_main">capacitor-typeorm-sqlite-ng</string>
+    <string name="package_name">capacitor.typeorm.sqlite</string>
+    <string name="custom_url_scheme">capacitor.typeorm.sqlite</string>
+</resources>
