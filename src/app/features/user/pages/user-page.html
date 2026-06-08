@@ -1,0 +1,46 @@
+<main class="shell">
+  <section class="panel" aria-labelledby="page-title">
+    <div class="summary">
+      <p class="eyebrow">Capacitor SQLite + TypeORM</p>
+      <h1 id="page-title">Database bridge</h1>
+      <p class="status" [class.status-error]="error()">{{ status() }}</p>
+    </div>
+
+    <dl class="meta">
+      <div>
+        <dt>Platform</dt>
+        <dd>{{ platform }}</dd>
+      </div>
+      <div>
+        <dt>Database</dt>
+        <dd>{{ databaseName }}</dd>
+      </div>
+      <div>
+        <dt>Users</dt>
+        <dd>{{ users().length }}</dd>
+      </div>
+    </dl>
+
+    <button type="button" class="primary-action" [disabled]="isBusy()" (click)="addUser()">
+      Add user
+    </button>
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+
+    <div class="user-list" aria-live="polite">
+      @for (user of users(); track user.userId) {
+        <article class="user-row">
+          <span class="avatar" aria-hidden="true">{{ user.userName.charAt(0) }}</span>
+          <div>
+            <h2>{{ user.userName }}</h2>
+            <p>User #{{ user.userId }}</p>
+          </div>
+        </article>
+      } @empty {
+        <p class="empty">No users yet.</p>
+      }
+    </div>
+  </section>
+</main>

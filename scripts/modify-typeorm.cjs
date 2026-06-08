@@ -1,111 +1,123 @@
 const fs = require('fs');
 
-/* Moddify CapacitorQueryRunner.js */
-let filePath = './node_modules/typeorm/driver/capacitor/CapacitorQueryRunner.js';
-const correctBugInCapacitorQueryRunner = (file) => {
-  if (fs.existsSync(file)) {
-    fs.readFile(file, 'utf8', function (err, data) {
-        if (err) {
-            return console.error(err);
-        }
+const targets = [
+  {
+    file: './node_modules/typeorm/driver/capacitor/CapacitorQueryRunner.js',
+    patch: patchQueryRunner,
+  },
+  {
+    file: './node_modules/typeorm/browser/driver/capacitor/CapacitorQueryRunner.js',
+    patch: patchQueryRunner,
+  },
+  {
+    file: './node_modules/typeorm/driver/capacitor/CapacitorDriver.js',
+    patch: patchDriver,
+  },
+  {
+    file: './node_modules/typeorm/browser/driver/capacitor/CapacitorDriver.js',
+    patch: patchDriver,
+  },
+  {
+    file: './node_modules/typeorm/driver/expo/ExpoDriver.js',
+    patch: patchExpoDriver,
+  },
+  {
+    file: './node_modules/typeorm/browser/driver/expo/ExpoDriver.js',
+    patch: patchExpoDriver,
+  },
+  {
+    file: './node_modules/typeorm/browser/util/StringUtils.js',
+    patch: patchBrowserStringUtils,
+  },
+  {
+    file: './node_modules/sql.js/dist/sql-wasm.js',
+    patch: patchSqlJsBrowserBundle,
+  },
+];
 
-        const index = `"DROP",`
-        if (index === -1) {
-            console.warn('Line not found. Package probably fixed.');
-            return;
-        }
+for (const target of targets) {
+  patchFile(target.file, target.patch);
+}
 
-        var result = data.replace(
-          `    "DROP",`,
-          `    "DROP",
-               "PRAGMA",`
-        );
-        result = result.replace(
-            'else if (["INSERT", "UPDATE", "DELETE", "PRAGMA"].indexOf(command) !== -1) {',
-            'else if (["INSERT", "UPDATE", "DELETE"].indexOf(command) !== -1) {'
-        );
-
-        fs.writeFile(file, result, 'utf8', function (err) {
-            if (err) return console.error(err);
-        });
-    });
-  } else {
-      utils.warn(`Couldn't find file ${file}`);
+function patchFile(file, patch) {
+  if (!fs.existsSync(file)) {
+    console.warn(`TypeORM patch skipped: ${file} was not found.`);
+    return;
   }
 
-}
-/* Moddify CapacitorDriver.js */
-const correctBugInCapacitorDriver = (file) => {
-  if (fs.existsSync(file)) {
-      fs.readFile(file, 'utf8', function (err, data) {
-          if (err) {
-              return console.error(err);
-          }
+  const current = fs.readFileSync(file, 'utf8');
+  const next = patch(current);
 
-          const index = data.indexOf('await connection.run(`PRAGMA foreign_keys = ON`);');
-          if (index === -1) {
-              console.warn('Line not found. Package probably fixed.');
-              return;
-          }
-
-          var result = data.replace(
-              'await connection.run(`PRAGMA foreign_keys = ON`);',
-              'await connection.execute(`PRAGMA foreign_keys = ON`, false);'
-          );
-          result = result.replace(
-              'await connection.run(`PRAGMA journal_mode = ${this.options.journalMode}`);',
-              'await connection.execute(`PRAGMA journal_mode = ${this.options.journalMode}`, false);'
-          );
-
-          fs.writeFile(file, result, 'utf8', function (err) {
-              if (err) return console.error(err);
-          });
-      });
-  } else {
-      utils.warn(`Couldn't find file ${file}`);
+  if (current === next) {
+    console.log(`TypeORM patch already applied: ${file}`);
+    return;
   }
-}
-correctBugInCapacitorQueryRunner('./node_modules/typeorm/driver/capacitor/CapacitorQueryRunner.js');
-correctBugInCapacitorQueryRunner('./node_modules/typeorm/browser/driver/capacitor/CapacitorQueryRunner.js');
-correctBugInCapacitorDriver('./node_modules/typeorm/driver/capacitor/CapacitorDriver.js');
-correctBugInCapacitorDriver('./node_modules/typeorm/browser/driver/capacitor/CapacitorDriver.js');
 
-
-/*
-const modTypeOrmCapacitor = (filePath, lineToModify, replacementText) => {
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error('Error reading file:', err);
-      return;
-    }
-
-    // Split data by line
-    const lines = data.split('\n');
-
-    // Modify the specific line
-    if (lines.length >= lineToModify) {
-      lines[lineToModify - 1] = replacementText; // Line numbers are 1-based
-    } else {
-      console.error('Line number to modify is out of range.');
-      return;
-    }
-
-    // Join lines back together
-    const modifiedData = lines.join('\n');
-
-    // Write the modified data back to the file
-    fs.writeFile(filePath, modifiedData, 'utf8', (err) => {
-      if (err) {
-        console.error('Error writing file:', err);
-        return;
-      }
-
-      console.log('File modified successfully.');
-    });
-  });
+  fs.writeFileSync(file, next, 'utf8');
+  console.log(`TypeORM patch applied: ${file}`);
 }
 
-let filePath = './node_modules/typeorm/driver/capacitor/CapacitorQueryRunner.js';
-let lineToModify = 61;
-let replacementText = '    else if (["INSERT", "UPDATE", "DELETE"].indexOf(command) !== -1) {';
-*/
+function patchQueryRunner(source) {
+  return source
+    .replace(
+      [
+        '                "ALTER",',
+        '                "DROP",',
+        '            ].indexOf(command) !== -1) {',
+      ].join('\n'),
+      [
+        '                "ALTER",',
+        '                "DROP",',
+        '                "PRAGMA",',
+        '            ].indexOf(command) !== -1) {',
+      ].join('\n'),
+    )
+    .replace(
+      [
+        '                "ALTER",',
+        '                "DROP",',
+        '                "PRAGMA",',
+        '                "PRAGMA",',
+        '            ].indexOf(command) !== -1) {',
+      ].join('\n'),
+      [
+        '                "ALTER",',
+        '                "DROP",',
+        '                "PRAGMA",',
+        '            ].indexOf(command) !== -1) {',
+      ].join('\n'),
+    );
+}
+
+function patchDriver(source) {
+  return source
+    .replace(
+      'await connection.execute(`PRAGMA foreign_keys = ON`);',
+      'await connection.execute(`PRAGMA foreign_keys = ON`, false);',
+    )
+    .replace(
+      'await connection.execute(`PRAGMA journal_mode = ${this.options.journalMode}`);',
+      'await connection.execute(`PRAGMA journal_mode = ${this.options.journalMode}`, false);',
+    );
+}
+
+function patchExpoDriver(source) {
+  return source.replace(
+    'return require("expo-sqlite");',
+    'throw new error_1.DriverPackageNotInstalledError("Expo SQLite", "expo-sqlite");',
+  );
+}
+
+function patchBrowserStringUtils(source) {
+  return source.replace(
+    'const crypto = require("node:crypto");',
+    'const crypto = undefined;',
+  );
+}
+
+function patchSqlJsBrowserBundle(source) {
+  return source.replace(
+    'if(Da){var fs=require("fs"),Ha=require("path");',
+    'if(false&&Da){var fs=null,Ha=null;',
+  );
+}

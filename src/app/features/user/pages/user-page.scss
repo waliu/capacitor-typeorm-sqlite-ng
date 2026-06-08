@@ -1,0 +1,163 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  color: #172033;
+  background:
+    linear-gradient(135deg, rgba(22, 119, 255, 0.12), transparent 34%),
+    linear-gradient(315deg, rgba(29, 167, 115, 0.16), transparent 28%),
+    #f7f8fb;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+.shell {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 32px 16px;
+}
+
+.panel {
+  width: min(720px, 100%);
+  padding: 24px;
+  border: 1px solid #d9e0ea;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 52px rgba(23, 32, 51, 0.12);
+}
+
+.summary {
+  display: grid;
+  gap: 8px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #2264aa;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(2rem, 8vw, 3rem);
+  line-height: 1;
+}
+
+.status {
+  color: #42526b;
+}
+
+.status-error,
+.error {
+  color: #b42318;
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.meta div {
+  padding: 14px;
+  border: 1px solid #d9e0ea;
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+
+dt {
+  color: #61708a;
+  font-size: 0.78rem;
+}
+
+dd {
+  margin: 4px 0 0;
+  font-weight: 700;
+}
+
+.primary-action {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  background: #1769aa;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.primary-action:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.error {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #f4b8b2;
+  border-radius: 8px;
+  background: #fff5f4;
+}
+
+.user-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.user-row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #d9e0ea;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.avatar {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 50%;
+  color: #0f4d38;
+  background: #c9f1df;
+  font-weight: 800;
+}
+
+.user-row h2 {
+  font-size: 1rem;
+}
+
+.user-row p,
+.empty {
+  color: #61708a;
+}
+
+.empty {
+  padding: 18px 0;
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .panel {
+    padding: 18px;
+  }
+
+  .meta {
+    grid-template-columns: 1fr;
+  }
+}
