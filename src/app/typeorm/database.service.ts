@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { CapacitorSQLite, SQLiteConnection } from '@capacitor-community/sqlite';
-import { DataSource, EntityTarget, ObjectLiteral, Repository } from 'typeorm/browser';
+import { DataSource } from 'typeorm/browser';
 
-import { DataSourceProvider } from '../services/common/data-source-provider';
 import {
   PLATFORM_DATABASE_NAME,
   PlatformDataSourceFactory,
@@ -14,7 +13,7 @@ interface WebStoreDriver {
 }
 
 @Injectable({ providedIn: 'root' })
-export class DatabaseService implements DataSourceProvider {
+export class DatabaseService {
   private readonly platformValue = Capacitor.getPlatform();
   private readonly sqliteConnection = new SQLiteConnection(CapacitorSQLite);
   private readonly dataSourceFactory = new PlatformDataSourceFactory();
@@ -33,18 +32,21 @@ export class DatabaseService implements DataSourceProvider {
     return this.dataSource?.isInitialized ?? false;
   }
 
-  async initialize(): Promise<void> {
-    await this.getInitializedDataSource();
-  }
-
-  getRepository<Entity extends ObjectLiteral>(
-    entity: EntityTarget<Entity>,
-  ): Repository<Entity> {
-    if (!this.dataSource?.isInitialized) {
-      throw new Error('TypeORM has not been initialized.');
+  async initialize(): Promise<DataSource> {
+    if (this.dataSource?.isInitialized) {
+      return this.dataSource;
     }
 
-    return this.dataSource.getRepository(entity);
+    this.initializing ??= this.initializeDataSource();
+    return this.initializing;
+  }
+
+  getInitializedDataSource(): DataSource {
+    if (!this.dataSource?.isInitialized) {
+      throw new Error('Database has not been initialized.');
+    }
+
+    return this.dataSource;
   }
 
   async persist(): Promise<void> {
@@ -54,15 +56,6 @@ export class DatabaseService implements DataSourceProvider {
 
     const driver = this.dataSource?.driver as WebStoreDriver | undefined;
     await driver?.save?.();
-  }
-
-  private async getInitializedDataSource(): Promise<DataSource> {
-    if (this.dataSource?.isInitialized) {
-      return this.dataSource;
-    }
-
-    this.initializing ??= this.initializeDataSource();
-    return this.initializing;
   }
 
   private async initializeDataSource(): Promise<DataSource> {

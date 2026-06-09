@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 
+import { UserController } from '../../../services/controllers/user/user.controller';
 import { UserDto } from '../../../services/dto/user/user.dto';
-import { USER_CONTROLLER } from '../../../shared/application-services.provider';
+import { DATABASE_INFO } from '../../../shared/database-info';
 
 @Component({
   selector: 'app-user-page',
@@ -9,19 +10,20 @@ import { USER_CONTROLLER } from '../../../shared/application-services.provider';
   styleUrl: './user-page.scss',
 })
 export class UserPage implements OnInit {
-  private readonly userController = inject(USER_CONTROLLER);
+  private readonly databaseInfo = inject(DATABASE_INFO);
+  private readonly userController = inject(UserController);
 
   protected readonly users = signal<UserDto[]>([]);
   protected readonly status = signal('Initializing TypeORM...');
   protected readonly isBusy = signal(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly platform = this.userController.platform;
-  protected readonly databaseName = this.userController.databaseName;
+  protected readonly platform = this.databaseInfo.platform;
+  protected readonly databaseName = this.databaseInfo.databaseName;
 
   async ngOnInit(): Promise<void> {
     this.status.set('Initializing TypeORM...');
     await this.run('TypeORM is ready.', async () => {
-      this.users.set(await this.userController.initialize());
+      this.users.set(await this.userController.findUsers());
     });
   }
 

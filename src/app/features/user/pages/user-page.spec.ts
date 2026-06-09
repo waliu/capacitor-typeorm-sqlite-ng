@@ -1,14 +1,18 @@
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 
-import { USER_CONTROLLER } from '../../../shared/application-services.provider';
+import { UserController } from '../../../services/controllers/user/user.controller';
+import { DATABASE_INFO } from '../../../shared/database-info';
 import { UserPage } from './user-page';
 
 describe('UserPage', () => {
-  const userController = {
+  const database = {
     platform: 'web',
     databaseName: 'transaction',
-    initialize: vi.fn().mockResolvedValue([]),
+  };
+
+  const userController = {
+    findUsers: vi.fn().mockResolvedValue([]),
     addRandomUser: vi.fn().mockResolvedValue([
       {
         userId: 1,
@@ -18,14 +22,18 @@ describe('UserPage', () => {
   };
 
   beforeEach(async () => {
-    userController.initialize.mockClear();
+    userController.findUsers.mockClear();
     userController.addRandomUser.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [UserPage],
       providers: [
         {
-          provide: USER_CONTROLLER,
+          provide: DATABASE_INFO,
+          useValue: database,
+        },
+        {
+          provide: UserController,
           useValue: userController,
         },
       ],
@@ -40,7 +48,7 @@ describe('UserPage', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(userController.initialize).toHaveBeenCalled();
+    expect(userController.findUsers).toHaveBeenCalled();
     expect(compiled.querySelector('h1')?.textContent).toContain('Database bridge');
     expect(compiled.textContent).toContain('transaction');
   });

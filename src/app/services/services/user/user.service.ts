@@ -1,5 +1,6 @@
 import { CreateUserDto } from '../../dto/user/create-user.dto';
 import { UserDto } from '../../dto/user/user.dto';
+import { UserEntity } from '../../entities/user/user.entity';
 import { UserRepository } from '../../repositories/user/user.repository';
 
 export class UserService {
@@ -8,12 +9,25 @@ export class UserService {
 
   constructor(private readonly userRepository: UserRepository) {}
 
-  findUsers(): Promise<UserDto[]> {
-    return this.userRepository.findAll();
+  async findUsers(): Promise<UserDto[]> {
+    const users = await this.userRepository.findAll();
+
+    return users.map((user) => this.toDto(user));
   }
 
-  createUser(input: CreateUserDto): Promise<UserDto> {
-    return this.userRepository.create(input);
+  async createUser(input: CreateUserDto): Promise<UserDto> {
+    const userName = input.userName.trim();
+
+    if (!userName) {
+      throw new Error('User name is required.');
+    }
+
+    const user = await this.userRepository.create({
+      userName,
+      password: input.password,
+    });
+
+    return this.toDto(user);
   }
 
   createRandomUser(): Promise<UserDto> {
@@ -31,5 +45,12 @@ export class UserService {
 
   private pick(values: readonly string[]): string {
     return values[Math.floor(Math.random() * values.length)];
+  }
+
+  private toDto(user: UserEntity): UserDto {
+    return {
+      userId: user.userId,
+      userName: user.userName,
+    };
   }
 }

@@ -1,7 +1,7 @@
 import { CreateUserDto } from '../../dto/user/create-user.dto';
-import { UserDto } from '../../dto/user/user.dto';
+import { UserEntity } from '../../entities/user/user.entity';
 
 export interface UserRepository {
-  findAll(): Promise<UserDto[]>;
-  create(input: CreateUserDto): Promise<UserDto>;
+  findAll(): Promise<UserEntity[]>;
+  create(input: CreateUserDto): Promise<UserEntity>;
 }
