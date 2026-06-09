@@ -1,12 +1,10 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { CapacitorSQLite, SQLiteConnection } from '@capacitor-community/sqlite';
 import { DataSource } from 'typeorm/browser';
 
-import {
-  PLATFORM_DATABASE_NAME,
-  PlatformDataSourceFactory,
-} from './data-sources/platform-data-source.factory';
+import { DATABASE_OPTIONS } from './database.providers';
+import { PlatformDataSourceFactory } from './data-sources/platform-data-source.factory';
 
 interface WebStoreDriver {
   save?: () => Promise<void>;
@@ -14,14 +12,15 @@ interface WebStoreDriver {
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
+  private readonly options = inject(DATABASE_OPTIONS);
   private readonly platformValue = Capacitor.getPlatform();
   private readonly sqliteConnection = new SQLiteConnection(CapacitorSQLite);
-  private readonly dataSourceFactory = new PlatformDataSourceFactory();
+  private readonly dataSourceFactory = new PlatformDataSourceFactory(this.options);
   private dataSource?: DataSource;
   private initializing?: Promise<DataSource>;
 
   get databaseName(): string {
-    return PLATFORM_DATABASE_NAME;
+    return this.options.databaseName;
   }
 
   get platform(): string {

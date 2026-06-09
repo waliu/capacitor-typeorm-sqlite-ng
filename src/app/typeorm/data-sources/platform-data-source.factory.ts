@@ -2,20 +2,19 @@ import { SQLiteConnection } from '@capacitor-community/sqlite';
 import initSqlJs from 'sql.js';
 import { DataSource } from 'typeorm/browser';
 
-import { databaseEntities } from '../entities';
-import { InitializePlatformDb1730764800000 } from '../migrations/initialize-platform-db';
-
-export const PLATFORM_DATABASE_NAME = 'transaction';
+import { DatabaseOptions } from '../database-options';
 
 export class PlatformDataSourceFactory {
+  constructor(private readonly options: DatabaseOptions) {}
+
   createNative(driver: SQLiteConnection): DataSource {
     return new DataSource({
       type: 'capacitor',
       driver,
-      database: PLATFORM_DATABASE_NAME,
+      database: this.options.databaseName,
       mode: 'no-encryption',
-      entities: databaseEntities,
-      migrations: [InitializePlatformDb1730764800000],
+      entities: this.options.schema.entities,
+      migrations: this.options.schema.migrations,
       subscribers: [],
       logging: ['error', 'schema'],
       synchronize: false,
@@ -28,12 +27,12 @@ export class PlatformDataSourceFactory {
       type: 'sqljs',
       driver: initSqlJs,
       autoSave: true,
-      location: PLATFORM_DATABASE_NAME,
+      location: this.options.databaseName,
       sqlJsConfig: {
         locateFile: (file: string) => `/assets/${file}`,
       },
-      entities: databaseEntities,
-      migrations: [InitializePlatformDb1730764800000],
+      entities: this.options.schema.entities,
+      migrations: this.options.schema.migrations,
       subscribers: [],
       logging: ['error', 'schema'],
       synchronize: false,
