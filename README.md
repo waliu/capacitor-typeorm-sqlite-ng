@@ -35,6 +35,7 @@ Key boundaries:
 ```bash
 npm run build
 npm run build:native
+npm run schematics:build
 npm test -- --watch=false
 npm run cap:android
 ```
@@ -46,6 +47,37 @@ Use `npm run build` for the browser build. Use `npm run build:native` before syn
 `npm install` runs `npm run typeorm:patch`.
 
 The patch script updates TypeORM/sql.js browser and Capacitor compatibility points required by this project. It is intentionally strict: if an upstream file changes and the expected source cannot be found, the script fails instead of silently continuing.
+
+## Schematics
+
+Build the schematics before packing or publishing:
+
+```bash
+npm run schematics:build
+npm pack
+```
+
+Install the infrastructure into another Angular project:
+
+```bash
+ng add ./capacitor-typeorm-sqlite-ng-0.0.0.tgz --databaseName transaction
+```
+
+Generate a new domain slice:
+
+```bash
+ng generate capacitor-typeorm-sqlite-ng:domain user
+```
+
+The `ng-add` schematic:
+
+- Adds TypeORM/Capacitor/sql.js dependencies and scripts.
+- Configures Angular web/native assets.
+- Copies reusable `src/app/typeorm/` infrastructure.
+- Creates `src/app/database/database.config.ts`.
+- Wires `provideDatabase(appDatabaseOptions)` into `src/app/app.config.ts` when possible.
+
+The `domain` schematic creates the portable services layer, TypeORM entity/adapter, and focused composition provider for one domain.
 
 ## Android
 

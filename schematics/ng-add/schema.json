@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "CapacitorTypeormSqliteNgAddSchema",
+  "title": "Capacitor TypeORM SQLite ng-add Options",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "Angular project name. Defaults to the first application project."
+    },
+    "databaseName": {
+      "type": "string",
+      "description": "SQLite database name.",
+      "default": "transaction"
+    },
+    "skipAppConfig": {
+      "type": "boolean",
+      "description": "Skip updating src/app/app.config.ts.",
+      "default": false
+    },
+    "skipPackageJson": {
+      "type": "boolean",
+      "description": "Skip updating package.json dependencies and scripts.",
+      "default": false
+    }
+  },
+  "additionalProperties": false
+}

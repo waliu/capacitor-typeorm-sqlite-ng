@@ -74,6 +74,7 @@ features/
 
 - Treat `typeorm/` as code that can later move into a shared adapter library or be emitted by a schematic.
 - Treat `database/` as target-project code generated or updated by a schematic, including app-specific migrations and concrete repository adapters.
+- Keep schematic templates in `schematics/` aligned with the current app architecture whenever shared infrastructure changes.
 - Treat `services/` as the code most likely to move to a future Node.js backend with minimal changes; keep it independent from browser TypeORM imports.
 - A future backend should replace `database/`, `typeorm/`, `composition/`, and `features/`, while reusing the business contracts and logic in `services/`.
 

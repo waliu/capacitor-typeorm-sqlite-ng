@@ -7,14 +7,22 @@
     "build": "ng build",
     "build:web": "ng build",
     "build:native": "ng build --configuration production,native",
+    "schematics:build": "tsc -p tsconfig.schematics.json",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "typeorm:patch": "node ./scripts/modify-typeorm.cjs",
     "cap:sync": "npm run build:native && npx cap sync",
     "cap:android": "npm run build:native && npx cap sync android",
+    "prepack": "npm run schematics:build",
     "postinstall": "npm run typeorm:patch"
   },
-  "private": true,
+  "private": false,
+  "schematics": "./schematics/collection.json",
+  "files": [
+    "README.md",
+    "schematics",
+    "scripts/modify-typeorm.cjs"
+  ],
   "packageManager": "npm@11.12.1",
   "dependencies": {
     "@angular/common": "^22.0.0",
@@ -33,11 +41,14 @@
     "typeorm": "^1.0.0"
   },
   "devDependencies": {
+    "@angular-devkit/core": "^22.0.0",
+    "@angular-devkit/schematics": "^22.0.0",
     "@angular/build": "^22.0.0",
     "@angular/cli": "^22.0.0",
     "@angular/compiler-cli": "^22.0.0",
     "@capacitor/android": "^8.4.0",
     "@capacitor/cli": "^8.4.0",
+    "@types/node": "^24.13.1",
     "@types/sql.js": "^1.4.9",
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
