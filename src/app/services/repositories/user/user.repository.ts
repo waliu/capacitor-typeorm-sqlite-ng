@@ -1,7 +1,11 @@
-import { CreateUserDto } from '../../dto/user/create-user.dto';
-import { UserEntity } from '../../entities/user/user.entity';
+import { User } from '../../entities/user/user';
+
+export interface CreateUserInput {
+  readonly userName: string;
+  readonly password: string;
+}
 
 export interface UserRepository {
-  findAll(): Promise<UserEntity[]>;
-  create(input: CreateUserDto): Promise<UserEntity>;
+  findAll(): Promise<User[]>;
+  create(input: CreateUserInput): Promise<User>;
 }

@@ -1,9 +1,9 @@
-import { UserEntity } from '../../entities/user/user.entity';
+import { User } from '../../entities/user/user';
 import { UserRepository } from '../../repositories/user/user.repository';
 import { UserService } from './user.service';
 
 describe('UserService', () => {
-  const users: UserEntity[] = [
+  const users: User[] = [
     {
       userId: 1,
       userName: 'Alex Smith',
@@ -36,14 +36,14 @@ describe('UserService', () => {
   });
 
   it('trims user names before saving', async () => {
-    const created: Array<{ password?: string; userName: string }> = [];
+    const created: Array<{ password: string; userName: string }> = [];
     const service = createService({
       create: async (input) => {
         created.push(input);
         return {
           userId: 2,
           userName: input.userName,
-          password: input.password ?? '123456',
+          password: input.password,
         };
       },
     });
@@ -56,7 +56,7 @@ describe('UserService', () => {
       userId: 2,
       userName: 'Morgan Brown',
     });
-    expect(created).toEqual([{ password: undefined, userName: 'Morgan Brown' }]);
+    expect(created).toEqual([{ password: '123456', userName: 'Morgan Brown' }]);
   });
 
   it('rejects empty user names', async () => {

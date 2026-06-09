@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm/browser';
 
 @Entity('sys_user')
-export class UserEntity {
+export class UserTypeormEntity {
   @PrimaryGeneratedColumn({ name: 'user_id', type: 'integer' })
   userId!: number;
 

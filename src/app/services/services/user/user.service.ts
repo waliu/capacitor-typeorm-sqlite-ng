@@ -1,9 +1,10 @@
 import { CreateUserDto } from '../../dto/user/create-user.dto';
 import { UserDto } from '../../dto/user/user.dto';
-import { UserEntity } from '../../entities/user/user.entity';
+import { User } from '../../entities/user/user';
 import { UserRepository } from '../../repositories/user/user.repository';
 
 export class UserService {
+  private readonly defaultPassword = '123456';
   private readonly firstNames = ['Alex', 'Jordan', 'Taylor', 'Casey', 'Morgan'];
   private readonly lastNames = ['Smith', 'Johnson', 'Brown', 'Anderson', 'Martin'];
 
@@ -24,7 +25,7 @@ export class UserService {
 
     const user = await this.userRepository.create({
       userName,
-      password: input.password,
+      password: input.password ?? this.defaultPassword,
     });
 
     return this.toDto(user);
@@ -47,7 +48,7 @@ export class UserService {
     return values[Math.floor(Math.random() * values.length)];
   }
 
-  private toDto(user: UserEntity): UserDto {
+  private toDto(user: User): UserDto {
     return {
       userId: user.userId,
       userName: user.userName,

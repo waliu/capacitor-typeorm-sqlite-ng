@@ -4,22 +4,22 @@ import {
 } from '@angular/core';
 import { Repository } from 'typeorm/browser';
 
+import { UserTypeormEntity } from '../database/entities/user.typeorm-entity';
+import { TypeOrmUserRepository } from '../database/repositories/user.typeorm-repository';
 import { UserController } from '../services/controllers/user/user.controller';
-import { UserEntity } from '../services/entities/user/user.entity';
 import { UserRepository } from '../services/repositories/user/user.repository';
 import { UserService } from '../services/services/user/user.service';
 import { getRepositoryToken } from '../typeorm/repositories/repository-token';
 import { provideRepository } from '../typeorm/repositories/repository.providers';
-import { TypeOrmUserRepository } from '../typeorm/repositories/user.typeorm-repository';
 import { USER_REPOSITORY } from './application.tokens';
 
 export function provideApplicationServices(): Array<EnvironmentProviders | Provider> {
   return [
-    provideRepository(UserEntity),
+    provideRepository(UserTypeormEntity),
     {
       provide: USER_REPOSITORY,
-      deps: [getRepositoryToken(UserEntity)],
-      useFactory: (repository: Repository<UserEntity>): UserRepository =>
+      deps: [getRepositoryToken(UserTypeormEntity)],
+      useFactory: (repository: Repository<UserTypeormEntity>): UserRepository =>
         new TypeOrmUserRepository(repository),
     },
     {
