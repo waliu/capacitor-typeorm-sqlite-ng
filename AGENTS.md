@@ -45,7 +45,7 @@ features/
 
 - `src/app/features/` is the Angular UI layer. It owns pages, components, UI state, route interaction, loading state, and display-only concerns.
 - `src/app/services/` is the portable business layer. It owns DTOs, pure business entities, repository interfaces, business services, and application controllers.
-- `src/app/typeorm/` is the reusable TypeORM/Capacitor adapter layer. It owns DataSource creation, database providers, repository tokens, and generic repository providers.
+- `src/app/typeorm/` is the reusable TypeORM/Capacitor adapter layer. It owns DataSource creation, platform/database providers, repository tokens, and generic repository providers.
 - `src/app/database/` is the current app database layer. It owns `database.config.ts`, app-specific TypeORM entities, app-specific migrations, and app-specific TypeORM repository adapters grouped by domain.
 - `src/app/composition/` is the Angular composition root. It wires interfaces to adapters through Angular providers and delegates domain-specific wiring to focused provider files.
 - `src/app/shared/` is for small cross-cutting UI/app contracts, such as read-only tokens used by features.
@@ -64,6 +64,7 @@ features/
 - Group database entities and repository adapters by domain once more than one domain exists, for example `database/entities/user/` and `database/repositories/user/`.
 - Keep `application.providers.ts` small; add domain provider files such as `composition/user.providers.ts` for domain-specific wiring.
 - `typeorm/` must not import app business modules from `services/` or `database/`.
+- `typeorm/` infrastructure objects such as platform detection, SQLite connections, and DataSource factories should be provided through Angular injection tokens instead of being created directly inside services.
 - Database initialization must happen through `provideDatabase(...)` and `provideAppInitializer(...)`, not inside pages, controllers, services, or repositories.
 - Project migrations must live under `src/app/database/migrations/`, not under `src/app/typeorm/`.
 - Project entity/migration registration must live in `src/app/database/database.config.ts`.

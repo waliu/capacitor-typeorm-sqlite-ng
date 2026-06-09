@@ -27,7 +27,7 @@ Key boundaries:
 - `src/app/services/` is portable business code. It must not import Angular, Ionic, Capacitor, or TypeORM.
 - `src/app/features/` is Angular UI code. It calls controllers only.
 - `src/app/database/` contains app-specific TypeORM entities, migrations, and repository adapters.
-- `src/app/typeorm/` contains reusable TypeORM/Capacitor infrastructure.
+- `src/app/typeorm/` contains reusable TypeORM/Capacitor infrastructure. Platform detection, SQLite connection creation, and DataSource factory creation are exposed through providers so the adapter can later move into a shared library.
 - `src/app/composition/` wires business interfaces to concrete adapters.
 
 ## Commands

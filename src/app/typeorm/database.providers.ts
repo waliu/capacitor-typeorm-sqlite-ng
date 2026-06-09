@@ -1,6 +1,5 @@
 import {
   EnvironmentProviders,
-  InjectionToken,
   inject,
   makeEnvironmentProviders,
   provideAppInitializer,
@@ -8,14 +7,35 @@ import {
 
 import { DatabaseOptions } from './database-options';
 import { DatabaseService } from './database.service';
-
-export const DATABASE_OPTIONS = new InjectionToken<DatabaseOptions>('DATABASE_OPTIONS');
+import { DATABASE_OPTIONS } from './database.tokens';
+import {
+  createDatabasePlatform,
+  createSQLiteConnection,
+  DATABASE_PLATFORM,
+  PLATFORM_DATA_SOURCE_FACTORY,
+  SQLITE_CONNECTION_FACTORY,
+} from './database-platform';
+import { PlatformDataSourceFactory } from './data-sources/platform-data-source.factory';
 
 export function provideDatabase(options: DatabaseOptions): EnvironmentProviders {
   return makeEnvironmentProviders([
     {
       provide: DATABASE_OPTIONS,
       useValue: options,
+    },
+    {
+      provide: DATABASE_PLATFORM,
+      useFactory: createDatabasePlatform,
+    },
+    {
+      provide: SQLITE_CONNECTION_FACTORY,
+      useValue: createSQLiteConnection,
+    },
+    {
+      provide: PLATFORM_DATA_SOURCE_FACTORY,
+      deps: [DATABASE_OPTIONS],
+      useFactory: (databaseOptions: DatabaseOptions): PlatformDataSourceFactory =>
+        new PlatformDataSourceFactory(databaseOptions),
     },
     DatabaseService,
     provideAppInitializer(() => {

@@ -1,10 +1,12 @@
 import { inject, Injectable } from '@angular/core';
-import { Capacitor } from '@capacitor/core';
-import { CapacitorSQLite, SQLiteConnection } from '@capacitor-community/sqlite';
 import { DataSource } from 'typeorm/browser';
 
-import { DATABASE_OPTIONS } from './database.providers';
-import { PlatformDataSourceFactory } from './data-sources/platform-data-source.factory';
+import {
+  DATABASE_PLATFORM,
+  PLATFORM_DATA_SOURCE_FACTORY,
+  SQLITE_CONNECTION_FACTORY,
+} from './database-platform';
+import { DATABASE_OPTIONS } from './database.tokens';
 
 interface WebStoreDriver {
   save?: () => Promise<void>;
@@ -13,9 +15,9 @@ interface WebStoreDriver {
 @Injectable({ providedIn: 'root' })
 export class DatabaseService {
   private readonly options = inject(DATABASE_OPTIONS);
-  private readonly platformValue = Capacitor.getPlatform();
-  private readonly sqliteConnection = new SQLiteConnection(CapacitorSQLite);
-  private readonly dataSourceFactory = new PlatformDataSourceFactory(this.options);
+  private readonly platformValue = inject(DATABASE_PLATFORM);
+  private readonly sqliteConnectionFactory = inject(SQLITE_CONNECTION_FACTORY);
+  private readonly dataSourceFactory = inject(PLATFORM_DATA_SOURCE_FACTORY);
   private dataSource?: DataSource;
   private initializing?: Promise<DataSource>;
 
@@ -24,7 +26,7 @@ export class DatabaseService {
   }
 
   get platform(): string {
-    return this.platformValue;
+    return this.platformValue.name;
   }
 
   get initialized(): boolean {
@@ -49,7 +51,7 @@ export class DatabaseService {
   }
 
   async persist(): Promise<void> {
-    if (this.isNative()) {
+    if (this.platformValue.isNative) {
       return;
     }
 
@@ -74,15 +76,13 @@ export class DatabaseService {
   }
 
   private async createDataSource(): Promise<DataSource> {
-    if (this.isNative()) {
-      await this.sqliteConnection.checkConnectionsConsistency();
-      return this.dataSourceFactory.createNative(this.sqliteConnection);
+    if (this.platformValue.isNative) {
+      const sqliteConnection = this.sqliteConnectionFactory();
+
+      await sqliteConnection.checkConnectionsConsistency();
+      return this.dataSourceFactory.createNative(sqliteConnection);
     }
 
     return this.dataSourceFactory.createWeb();
-  }
-
-  private isNative(): boolean {
-    return this.platformValue === 'ios' || this.platformValue === 'android';
   }
 }
