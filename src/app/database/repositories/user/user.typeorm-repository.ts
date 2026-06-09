@@ -1,11 +1,11 @@
 import { Repository } from 'typeorm/browser';
 
-import { UserTypeormEntity } from '../entities/user.typeorm-entity';
-import { User } from '../../services/entities/user/user';
+import { UserTypeormEntity } from '../../entities/user/user.typeorm-entity';
+import { User } from '../../../services/entities/user/user';
 import {
   CreateUserInput,
   UserRepository,
-} from '../../services/repositories/user/user.repository';
+} from '../../../services/repositories/user/user.repository';
 
 export class TypeOrmUserRepository implements UserRepository {
   constructor(private readonly repository: Repository<UserTypeormEntity>) {}

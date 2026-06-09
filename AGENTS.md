@@ -46,8 +46,8 @@ features/
 - `src/app/features/` is the Angular UI layer. It owns pages, components, UI state, route interaction, loading state, and display-only concerns.
 - `src/app/services/` is the portable business layer. It owns DTOs, pure business entities, repository interfaces, business services, and application controllers.
 - `src/app/typeorm/` is the reusable TypeORM/Capacitor adapter layer. It owns DataSource creation, database providers, repository tokens, and generic repository providers.
-- `src/app/database/` is the current app database layer. It owns `database.config.ts`, app-specific TypeORM entities, app-specific migrations, and app-specific TypeORM repository adapters.
-- `src/app/composition/` is the Angular composition root. It wires interfaces to adapters through Angular providers.
+- `src/app/database/` is the current app database layer. It owns `database.config.ts`, app-specific TypeORM entities, app-specific migrations, and app-specific TypeORM repository adapters grouped by domain.
+- `src/app/composition/` is the Angular composition root. It wires interfaces to adapters through Angular providers and delegates domain-specific wiring to focused provider files.
 - `src/app/shared/` is for small cross-cutting UI/app contracts, such as read-only tokens used by features.
 
 ## Hard Boundaries
@@ -61,6 +61,8 @@ features/
 - Business entities under `services/entities/` must be pure TypeScript shapes/classes without persistence decorators.
 - TypeORM entities must live under `database/entities/`, not under `services/entities/`.
 - App-specific TypeORM repository adapters must live under `database/repositories/`, implement business repository interfaces, map TypeORM entities to business entities, and may depend on TypeORM `Repository<TEntity>`.
+- Group database entities and repository adapters by domain once more than one domain exists, for example `database/entities/user/` and `database/repositories/user/`.
+- Keep `application.providers.ts` small; add domain provider files such as `composition/user.providers.ts` for domain-specific wiring.
 - `typeorm/` must not import app business modules from `services/` or `database/`.
 - Database initialization must happen through `provideDatabase(...)` and `provideAppInitializer(...)`, not inside pages, controllers, services, or repositories.
 - Project migrations must live under `src/app/database/migrations/`, not under `src/app/typeorm/`.
@@ -81,10 +83,10 @@ features/
 - Add repository interfaces under `services/repositories/<domain>/`.
 - Add business services under `services/services/<domain>/`.
 - Add application controllers under `services/controllers/<domain>/`.
-- Add TypeORM entities under `database/entities/`.
-- Add concrete TypeORM adapters under `database/repositories/`.
+- Add TypeORM entities under `database/entities/<domain>/`.
+- Add concrete TypeORM adapters under `database/repositories/<domain>/`.
 - Register entities and migrations in `database/database.config.ts`.
-- Wire repository interfaces to concrete adapters in `composition/application.providers.ts`.
+- Wire repository interfaces to concrete adapters in a focused domain provider file under `composition/`, then compose it from `composition/application.providers.ts`.
 - Keep feature pages under `features/<domain>/` and call controllers only.
 
 ## Verification

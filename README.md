@@ -1,59 +1,58 @@
-# CapacitorTypeormSqliteNg
+# Capacitor TypeORM SQLite Angular
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.0.
+Angular 22 + Capacitor 8 + TypeORM 1.0.0 demo project for a SQLite-backed mobile app.
 
-## Development server
+The app keeps the browser build and native build separate:
 
-To start a local development server, run:
+- Web uses `sql.js` and copies `sql-wasm.wasm` into `/assets`.
+- Native Android/iOS uses `@capacitor-community/sqlite` and does not copy `sql-wasm.wasm`.
 
-```bash
-ng serve
+## Architecture
+
+The project follows Ports and Adapters.
+
+```txt
+features/
+  -> services/controllers
+  -> services/services
+  -> services/repositories interface
+  -> database/repositories/<domain> adapter
+  -> typeorm/repositories provider
+  -> TypeORM Repository
+  -> DatabaseService / DataSource
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Key boundaries:
 
-## Code scaffolding
+- `src/app/services/` is portable business code. It must not import Angular, Ionic, Capacitor, or TypeORM.
+- `src/app/features/` is Angular UI code. It calls controllers only.
+- `src/app/database/` contains app-specific TypeORM entities, migrations, and repository adapters.
+- `src/app/typeorm/` contains reusable TypeORM/Capacitor infrastructure.
+- `src/app/composition/` wires business interfaces to concrete adapters.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Commands
 
 ```bash
-ng generate --help
+npm run build
+npm run build:native
+npm test -- --watch=false
+npm run cap:android
 ```
 
-## Building
+Use `npm run build` for the browser build. Use `npm run build:native` before syncing Capacitor.
 
-To build the project run:
+## TypeORM Patch
+
+`npm install` runs `npm run typeorm:patch`.
+
+The patch script updates TypeORM/sql.js browser and Capacitor compatibility points required by this project. It is intentionally strict: if an upstream file changes and the expected source cannot be found, the script fails instead of silently continuing.
+
+## Android
+
+Sync Android assets with:
 
 ```bash
-ng build
+npm run cap:android
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+After native-impacting changes, verify that Android assets do not contain `sql-wasm.wasm`.

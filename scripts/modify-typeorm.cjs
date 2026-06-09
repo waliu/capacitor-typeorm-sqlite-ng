@@ -46,7 +46,7 @@ function patchFile(file, patch) {
   }
 
   const current = fs.readFileSync(file, 'utf8');
-  const next = patch(current);
+  const next = patch(current, file);
 
   if (current === next) {
     console.log(`TypeORM patch already applied: ${file}`);
@@ -57,67 +57,94 @@ function patchFile(file, patch) {
   console.log(`TypeORM patch applied: ${file}`);
 }
 
-function patchQueryRunner(source) {
-  return source
-    .replace(
-      [
-        '                "ALTER",',
-        '                "DROP",',
-        '            ].indexOf(command) !== -1) {',
-      ].join('\n'),
-      [
-        '                "ALTER",',
-        '                "DROP",',
-        '                "PRAGMA",',
-        '            ].indexOf(command) !== -1) {',
-      ].join('\n'),
-    )
-    .replace(
-      [
-        '                "ALTER",',
-        '                "DROP",',
-        '                "PRAGMA",',
-        '                "PRAGMA",',
-        '            ].indexOf(command) !== -1) {',
-      ].join('\n'),
-      [
-        '                "ALTER",',
-        '                "DROP",',
-        '                "PRAGMA",',
-        '            ].indexOf(command) !== -1) {',
-      ].join('\n'),
-    );
+function patchQueryRunner(source, file) {
+  const expected = [
+    '                "ALTER",',
+    '                "DROP",',
+    '            ].indexOf(command) !== -1) {',
+  ].join('\n');
+  const patched = [
+    '                "ALTER",',
+    '                "DROP",',
+    '                "PRAGMA",',
+    '            ].indexOf(command) !== -1) {',
+  ].join('\n');
+  const duplicated = [
+    '                "ALTER",',
+    '                "DROP",',
+    '                "PRAGMA",',
+    '                "PRAGMA",',
+    '            ].indexOf(command) !== -1) {',
+  ].join('\n');
+
+  assertPatchable(source, file, expected, patched, duplicated);
+
+  return source.replace(expected, patched).replace(duplicated, patched);
 }
 
-function patchDriver(source) {
-  return source
-    .replace(
+function patchDriver(source, file) {
+  const patches = [
+    [
       'await connection.execute(`PRAGMA foreign_keys = ON`);',
       'await connection.execute(`PRAGMA foreign_keys = ON`, false);',
-    )
-    .replace(
+    ],
+    [
       'await connection.execute(`PRAGMA journal_mode = ${this.options.journalMode}`);',
       'await connection.execute(`PRAGMA journal_mode = ${this.options.journalMode}`, false);',
-    );
+    ],
+  ];
+
+  return applyRequiredPatches(source, file, patches);
 }
 
-function patchExpoDriver(source) {
-  return source.replace(
-    'return require("expo-sqlite");',
-    'throw new error_1.DriverPackageNotInstalledError("Expo SQLite", "expo-sqlite");',
-  );
+function patchExpoDriver(source, file) {
+  return applyRequiredPatches(source, file, [
+    [
+      'return require("expo-sqlite");',
+      'throw new error_1.DriverPackageNotInstalledError("Expo SQLite", "expo-sqlite");',
+    ],
+  ]);
 }
 
-function patchBrowserStringUtils(source) {
-  return source.replace(
-    'const crypto = require("node:crypto");',
-    'const crypto = undefined;',
-  );
+function patchBrowserStringUtils(source, file) {
+  return applyRequiredPatches(source, file, [
+    [
+      'const crypto = require("node:crypto");',
+      'const crypto = undefined;',
+    ],
+  ]);
 }
 
-function patchSqlJsBrowserBundle(source) {
-  return source.replace(
-    'if(Da){var fs=require("fs"),Ha=require("path");',
-    'if(false&&Da){var fs=null,Ha=null;',
+function patchSqlJsBrowserBundle(source, file) {
+  return applyRequiredPatches(source, file, [
+    [
+      'if(Da){var fs=require("fs"),Ha=require("path");',
+      'if(false&&Da){var fs=null,Ha=null;',
+    ],
+  ]);
+}
+
+function applyRequiredPatches(source, file, patches) {
+  let next = source;
+
+  for (const [expected, patched] of patches) {
+    assertPatchable(next, file, expected, patched);
+    next = next.replace(expected, patched);
+  }
+
+  return next;
+}
+
+function assertPatchable(source, file, expected, patched, duplicated) {
+  if (
+    source.includes(expected) ||
+    source.includes(patched) ||
+    (duplicated && source.includes(duplicated))
+  ) {
+    return;
+  }
+
+  throw new Error(
+    `TypeORM patch failed: ${file} did not contain the expected source or patched output.`,
   );
 }
