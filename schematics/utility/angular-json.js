@@ -2,11 +2,23 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateAngularJson = updateAngularJson;
 const json_1 = require("./json");
-const sqlWasmAsset = {
-    glob: 'sql-wasm.wasm',
-    input: 'node_modules/sql.js/dist',
-    output: '/assets',
-};
+const sqlWasmAssets = [
+    {
+        glob: 'sql-wasm*.wasm',
+        input: 'node_modules/sql.js/dist',
+        output: '/assets',
+    },
+    {
+        glob: 'sql-wasm*.wasm',
+        input: '../node_modules/sql.js/dist',
+        output: '/assets',
+    },
+    {
+        glob: 'sql-wasm*.wasm',
+        input: '../../node_modules/sql.js/dist',
+        output: '/assets',
+    },
+];
 const publicAsset = {
     glob: '**/*',
     input: 'public',
@@ -25,7 +37,7 @@ function updateAngularJson(tree, projectName) {
     if (!options) {
         throw new Error(`Build options not found for Angular project: ${projectName}`);
     }
-    options['assets'] = addUniqueObject(ensureArray(options['assets']), sqlWasmAsset);
+    options['assets'] = addUniqueObjects(normalizeSqlWasmAssets(ensureArray(options['assets'])), sqlWasmAssets);
     options['allowedCommonJsDependencies'] = addUniqueValues(ensureStringArray(options['allowedCommonJsDependencies']), commonJsDependencies);
     if (!build) {
         throw new Error(`Build target not found for Angular project: ${projectName}`);
@@ -61,4 +73,27 @@ function addUniqueObject(values, addition) {
         return values;
     }
     return [...values, addition];
+}
+function addUniqueObjects(values, additions) {
+    return additions.reduce((nextValues, addition) => addUniqueObject(nextValues, addition), values);
+}
+function normalizeSqlWasmAssets(values) {
+    return values.map((value) => {
+        if (!isJsonObject(value)) {
+            return value;
+        }
+        if (value['glob'] === 'sql-wasm.wasm' &&
+            typeof value['input'] === 'string' &&
+            value['input'].endsWith('node_modules/sql.js/dist') &&
+            value['output'] === '/assets') {
+            return {
+                ...value,
+                glob: 'sql-wasm*.wasm',
+            };
+        }
+        return value;
+    });
+}
+function isJsonObject(value) {
+    return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }

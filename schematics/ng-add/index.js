@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ngAdd = ngAdd;
 const schematics_1 = require("@angular-devkit/schematics");
+const tasks_1 = require("@angular-devkit/schematics/tasks");
+const tasks_2 = require("@angular-devkit/schematics/tasks");
 const angular_json_1 = require("../utility/angular-json");
 const app_config_1 = require("../utility/app-config");
 const package_json_1 = require("../utility/package-json");
@@ -22,6 +24,13 @@ function ngAdd(options) {
                 (0, angular_json_1.updateAngularJson)(tree, project.name);
                 if (!options.skipPackageJson) {
                     (0, package_json_1.updatePackageJson)(tree);
+                    const installTaskId = context.addTask(new tasks_1.NodePackageInstallTask());
+                    context.addTask(new tasks_2.RunSchematicTask('patch-typeorm', {}), [
+                        installTaskId,
+                    ]);
+                }
+                else {
+                    context.addTask(new tasks_2.RunSchematicTask('patch-typeorm', {}));
                 }
                 if (!options.skipAppConfig) {
                     (0, app_config_1.updateAppConfig)(tree, project);

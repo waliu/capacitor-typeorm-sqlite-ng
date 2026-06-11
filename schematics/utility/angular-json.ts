@@ -4,11 +4,23 @@ import { readJson, writeJson } from './json';
 
 type JsonObject = Record<string, unknown>;
 
-const sqlWasmAsset = {
-  glob: 'sql-wasm.wasm',
-  input: 'node_modules/sql.js/dist',
-  output: '/assets',
-};
+const sqlWasmAssets = [
+  {
+    glob: 'sql-wasm*.wasm',
+    input: 'node_modules/sql.js/dist',
+    output: '/assets',
+  },
+  {
+    glob: 'sql-wasm*.wasm',
+    input: '../node_modules/sql.js/dist',
+    output: '/assets',
+  },
+  {
+    glob: 'sql-wasm*.wasm',
+    input: '../../node_modules/sql.js/dist',
+    output: '/assets',
+  },
+] as const;
 
 const publicAsset = {
   glob: '**/*',
@@ -36,9 +48,9 @@ export function updateAngularJson(tree: Tree, projectName: string): void {
     throw new Error(`Build options not found for Angular project: ${projectName}`);
   }
 
-  options['assets'] = addUniqueObject(
-    ensureArray(options['assets']),
-    sqlWasmAsset,
+  options['assets'] = addUniqueObjects(
+    normalizeSqlWasmAssets(ensureArray(options['assets'])),
+    sqlWasmAssets,
   );
   options['allowedCommonJsDependencies'] = addUniqueValues(
     ensureStringArray(options['allowedCommonJsDependencies']),
@@ -90,4 +102,40 @@ function addUniqueObject(values: unknown[], addition: JsonObject): unknown[] {
   }
 
   return [...values, addition];
+}
+
+function addUniqueObjects(
+  values: unknown[],
+  additions: readonly JsonObject[],
+): unknown[] {
+  return additions.reduce(
+    (nextValues, addition) => addUniqueObject(nextValues, addition),
+    values,
+  );
+}
+
+function normalizeSqlWasmAssets(values: unknown[]): unknown[] {
+  return values.map((value) => {
+    if (!isJsonObject(value)) {
+      return value;
+    }
+
+    if (
+      value['glob'] === 'sql-wasm.wasm' &&
+      typeof value['input'] === 'string' &&
+      value['input'].endsWith('node_modules/sql.js/dist') &&
+      value['output'] === '/assets'
+    ) {
+      return {
+        ...value,
+        glob: 'sql-wasm*.wasm',
+      };
+    }
+
+    return value;
+  });
+}
+
+function isJsonObject(value: unknown): value is JsonObject {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }

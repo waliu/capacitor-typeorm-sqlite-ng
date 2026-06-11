@@ -1,6 +1,25 @@
 {
   "name": "capacitor-typeorm-sqlite-ng",
-  "version": "0.0.0",
+  "version": "1.0.0-rc.2",
+  "description": "Angular schematics for Capacitor SQLite and TypeORM architecture.",
+  "license": "MIT",
+  "keywords": [
+    "angular",
+    "schematics",
+    "capacitor",
+    "typeorm",
+    "sqlite",
+    "android",
+    "ports-and-adapters"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/waliu/capacitor-typeorm-sqlite-ng.git"
+  },
+  "bugs": {
+    "url": "https://github.com/waliu/capacitor-typeorm-sqlite-ng/issues"
+  },
+  "homepage": "https://github.com/waliu/capacitor-typeorm-sqlite-ng#readme",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

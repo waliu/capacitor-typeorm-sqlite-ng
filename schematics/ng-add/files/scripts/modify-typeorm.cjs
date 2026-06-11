@@ -116,10 +116,14 @@ function patchBrowserStringUtils(source, file) {
 }
 
 function patchSqlJsBrowserBundle(source, file) {
-  return applyRequiredPatches(source, file, [
+  return applyAlternativePatch(source, file, [
     [
       'if(Da){var fs=require("fs"),Ha=require("path");',
       'if(false&&Da){var fs=null,Ha=null;',
+    ],
+    [
+      'if(ca){var fs=require("node:fs");',
+      'if(false&&ca){var fs=null;',
     ],
   ]);
 }
@@ -146,5 +150,21 @@ function assertPatchable(source, file, expected, patched, duplicated) {
 
   throw new Error(
     `TypeORM patch failed: ${file} did not contain the expected source or patched output.`,
+  );
+}
+
+function applyAlternativePatch(source, file, patches) {
+  for (const [expected, patched] of patches) {
+    if (source.includes(patched)) {
+      return source;
+    }
+
+    if (source.includes(expected)) {
+      return source.replace(expected, patched);
+    }
+  }
+
+  throw new Error(
+    `TypeORM patch failed: ${file} did not contain any expected source or patched output.`,
   );
 }

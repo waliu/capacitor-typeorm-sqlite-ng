@@ -8,6 +8,8 @@ import {
   Tree,
   url,
 } from '@angular-devkit/schematics';
+import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
+import { RunSchematicTask } from '@angular-devkit/schematics/tasks';
 
 import { updateAngularJson } from '../utility/angular-json';
 import { updateAppConfig } from '../utility/app-config';
@@ -35,6 +37,12 @@ export function ngAdd(options: NgAddSchema): Rule {
 
         if (!options.skipPackageJson) {
           updatePackageJson(tree);
+          const installTaskId = context.addTask(new NodePackageInstallTask());
+          context.addTask(new RunSchematicTask('patch-typeorm', {}), [
+            installTaskId,
+          ]);
+        } else {
+          context.addTask(new RunSchematicTask('patch-typeorm', {}));
         }
 
         if (!options.skipAppConfig) {

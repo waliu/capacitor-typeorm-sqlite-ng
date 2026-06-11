@@ -1,6 +1,6 @@
-# Capacitor TypeORM SQLite Angular
+# Capacitor TypeORM SQLite Schematics
 
-Angular 22 + Capacitor 8 + TypeORM 1.0.0 demo project for a SQLite-backed mobile app.
+Angular 22 schematics for adding a Capacitor 8 + TypeORM 1.0.0 + SQLite architecture to an application.
 
 The app keeps the browser build and native build separate:
 
@@ -50,17 +50,52 @@ The patch script updates TypeORM/sql.js browser and Capacitor compatibility poin
 
 ## Schematics
 
-Build the schematics before packing or publishing:
+Run publish and packaging commands from this project root:
+
+```powershell
+cd C:\Users\ChenYu\Desktop\capacitor-typeorm-sqlite-ng
+```
+
+The root directory must contain:
+
+```txt
+package.json
+schematics/
+tsconfig.schematics.json
+README.md
+```
+
+Build and inspect the package before publishing:
 
 ```bash
+npm login
+npm whoami
 npm run schematics:build
+npm pack --dry-run
+```
+
+Publish the current release candidate:
+
+```bash
+npm publish --tag rc
+```
+
+Create a local tarball for testing:
+
+```bash
 npm pack
 ```
 
-Install the infrastructure into another Angular project:
+Install the infrastructure into another Angular project from npm:
 
 ```bash
-ng add ./capacitor-typeorm-sqlite-ng-0.0.0.tgz --databaseName transaction
+ng add capacitor-typeorm-sqlite-ng@rc --databaseName transaction
+```
+
+Install from a local tarball before publishing:
+
+```bash
+ng add ./capacitor-typeorm-sqlite-ng-1.0.0-rc.1.tgz --databaseName transaction
 ```
 
 Generate a new domain slice:
@@ -78,6 +113,42 @@ The `ng-add` schematic:
 - Wires `provideDatabase(appDatabaseOptions)` into `src/app/app.config.ts` when possible.
 
 The `domain` schematic creates the portable services layer, TypeORM entity/adapter, and focused composition provider for one domain.
+
+## Troubleshooting
+
+If Angular reports that it cannot find declarations for `sql.js`, make sure the target project has installed the dependencies written by `ng-add`:
+
+```bash
+npm install
+```
+
+The generated package.json should include:
+
+```json
+"devDependencies": {
+  "@types/sql.js": "^1.4.9"
+}
+```
+
+If the browser reports `GET /assets/sql-wasm-browser.wasm 404`, the target Angular app is not copying the wasm files from the right `node_modules` directory. The schematic writes asset entries for common layouts:
+
+```json
+{
+  "glob": "sql-wasm*.wasm",
+  "input": "node_modules/sql.js/dist",
+  "output": "/assets"
+}
+```
+
+For npm workspace apps nested under `apps/<name>`, the useful entry is usually:
+
+```json
+{
+  "glob": "sql-wasm*.wasm",
+  "input": "../../node_modules/sql.js/dist",
+  "output": "/assets"
+}
+```
 
 ## Android
 
